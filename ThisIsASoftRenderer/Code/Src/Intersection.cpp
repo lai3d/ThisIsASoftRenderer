@@ -4,11 +4,30 @@
 namespace SR
 {
 	//------------------------------------------------------------------------------------
+	RayTraceRenderable::RayTraceRenderable()
+		:m_bCastShadow(false)
+		,m_color(SColor::WHITE)
+		,m_aabb_raytrace(nullptr)
+	{
+	}
+	//------------------------------------------------------------------------------------
+	RayTraceRenderable::~RayTraceRenderable()
+	{
+		SAFE_DELETE(m_aabb_raytrace);
+	}
+	//------------------------------------------------------------------------------------
 	RayTrace_Box::RayTrace_Box( const VEC3& _minPt, const VEC3& _maxPt )
 		:minPt(_minPt)
 		,maxPt(_maxPt)
 	{
 		assert(minPt < maxPt);
+	}
+	//------------------------------------------------------------------------------------
+	RayTrace_Box::RayTrace_Box()
+		:minPt(10000, 10000, 10000)
+		,maxPt(-10000, -10000, -10000)
+	{
+
 	}
 	//------------------------------------------------------------------------------------
 	bool RayTrace_Box::DoRayIntersect( VEC3& oIntersectPt, const RAY& ray ) const

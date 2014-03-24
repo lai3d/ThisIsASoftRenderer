@@ -17,14 +17,14 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
     <UseOfAtl>false</UseOfAtl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
@@ -44,6 +44,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)\Build\Bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\Intermediate\$(Configuration)\</IntDir>
+    <TargetName>ThisIsASoftRenderer_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -63,6 +64,10 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -84,6 +89,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <Profile>true</Profile>
     </Link>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Code\Include\AABB.h" />
@@ -148,7 +156,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Code\Src\TestScene.cpp" />
-    <ClCompile Include="Code\Src\ThisIsASoftRenderer.cpp" />
     <ClCompile Include="Code\Src\Utility.cpp" />
     <ClCompile Include="Code\ThreadPool\ftlThread.cpp" />
     <ClCompile Include="Code\ThreadPool\MyJob.cpp" />

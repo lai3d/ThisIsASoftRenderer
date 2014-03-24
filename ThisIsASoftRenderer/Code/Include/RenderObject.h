@@ -14,13 +14,21 @@
 #include "GeometryDef.h"
 #include "AABB.h"
 #include "Rasterizer.h"
+#include "Intersection.h"
 
 namespace SR
 {
-	class RenderObject
+	class RenderObject : public RayTraceRenderable
 	{
 	public:
 		RenderObject();
+
+	public:
+		/*************** Override interfaces of RayTraceRenderable ***************/
+		virtual bool	DoRayIntersect(VEC3& oIntersectPt, const RAY& ray) const;
+		virtual VEC3	GetNormal(const VEC3& surfacePt) const;
+		virtual void	UpdateWorldAABB();
+		/************************************************************************/
 
 		// Mip-map level determination
 		void	CalcAllFaceTexArea();

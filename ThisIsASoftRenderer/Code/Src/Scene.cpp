@@ -24,8 +24,6 @@ namespace SR
 
 	void Scene::AddRenderObject( RenderObject* obj )
 	{
-		RenderUtil::ComputeAABB(*obj);
-
 		// If object is static in scene, we can do some pre-calcs
 		// instead of doing them at run-time.
 		if(obj->m_bStatic)
@@ -47,6 +45,7 @@ namespace SR
 
 	void Scene::AddRayTraceObject( RayTraceRenderable* obj )
 	{
+		obj->UpdateWorldAABB();
 		m_renderList_RayTrace.push_back(obj);
 	}
 

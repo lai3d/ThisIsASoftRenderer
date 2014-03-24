@@ -36,7 +36,8 @@ namespace SR
 		void	ProcessScene(Scene* pScene);
 
 	private:
-		void	_GetRayFromScreenPt(RAY& oWorldRay, RAY& oViewRay, int x, int y);
+		SColor	_Trace(Scene* pScene, float sx, float sy);
+		void	_GetRayFromScreenPt(RAY& oWorldRay, RAY& oViewRay, float x, float y);
 		bool	_GetIntersection(SIntersection& oIntersection, Scene* pScene, const RAY& worldRay, const RAY& viewRay);
 		bool	_IsInShadow(Scene* pScene, const RAY& ray);
 		SColor	_Shade(const SIntersection& intersection);

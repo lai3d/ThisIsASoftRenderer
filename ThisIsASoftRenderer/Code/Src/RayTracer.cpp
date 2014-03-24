@@ -59,49 +59,40 @@ namespace SR
 	}
 	//------------------------------------------------------------------------------------
 	void RayTracer::ProcessScene( Scene* pScene )
-	{
+	{		
 		PixelBox* pBackBuffer = g_env.renderer->GetFrameBuffer();
 		DWORD* destBuffer = (DWORD*)pBackBuffer->GetDataPointer();
-
-		// Primary ray
-		RAY viewRay, worldRay;
-		SIntersection intersection;
+		const int wndWidth = g_env.renderer->GetWndWidth();
+		const int wndHeight = g_env.renderer->GetWndHeight();
 		
-		for (int y=0; y<SCREEN_HEIGHT; ++y)
+		for (int y=0; y<wndHeight; ++y)
 		{
-			for (int x=0; x<SCREEN_WIDTH; ++x, ++destBuffer)
+			for (int x=0; x<wndWidth; ++x, ++destBuffer)
 			{
-				_GetRayFromScreenPt(worldRay, viewRay, x, y);
+				float fx = (float)x;
+				float fy = (float)y;
 
-				// Get nearest intersect point
-				if(_GetIntersection(intersection, pScene, worldRay, viewRay))
-				{
-					// Emit shadow ray
-					RAY shadowRay;
-					shadowRay.m_origin = intersection.pt;
-					shadowRay.m_dir = Common::Sub_Vec3_By_Vec3(m_pLight->pos, intersection.pt);
-					shadowRay.m_dir.Normalize();
+				// Super-sampling anti-aliasing
+				SColor c = _Trace(pScene, fx-0.25f, fy-0.25f);
+				c += _Trace(pScene, fx+0.25f, fy-0.25f);
+				c += _Trace(pScene, fx-0.25f, fy+0.25f);
+				c += _Trace(pScene, fx+0.25f, fy+0.25f);
+				c *= 0.25f;
 
-					if (_IsInShadow(pScene, shadowRay))
-					{
-						*destBuffer = 0x0;
-					}
-					else
-					{
-						*destBuffer = _Shade(intersection).GetAsInt();
-					}
-				}
+				*destBuffer = c.GetAsInt();
 			}
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void RayTracer::_GetRayFromScreenPt( RAY& oWorldRay, RAY& oViewRay, int x, int y )
+	void RayTracer::_GetRayFromScreenPt( RAY& oWorldRay, RAY& oViewRay, float x, float y )
 	{
+		const int wndWidth = g_env.renderer->GetWndWidth();
+		const int wndHeight = g_env.renderer->GetWndHeight();
 		Camera* cam = &g_env.renderer->m_camera;
 
 		// Screen pt -> NDC pt
-		float fx = x / (float)SCREEN_WIDTH;
-		float fy = -y / (float)SCREEN_HEIGHT;
+		float fx = x / wndWidth;
+		float fy = -y / wndHeight;
 		fx = (fx - 0.5f) * 2;
 		fy = (fy + 0.5f) * 2;
 
@@ -200,5 +191,30 @@ namespace SR
 		}
 
 		return false;
+	}
+	//------------------------------------------------------------------------------------
+	SColor RayTracer::_Trace( Scene* pScene, float sx, float sy )
+	{
+		// Primary ray
+		RAY viewRay, worldRay;
+		SIntersection intersection;
+		SColor ret = SColor::NICE_BLUE;
+
+		_GetRayFromScreenPt(worldRay, viewRay, sx, sy);
+
+		// Get nearest intersect point
+		if(_GetIntersection(intersection, pScene, worldRay, viewRay))
+		{
+			// Emit shadow ray
+			RAY shadowRay;
+			shadowRay.m_origin = intersection.pt;
+			shadowRay.m_dir = Common::Sub_Vec3_By_Vec3(m_pLight->pos, intersection.pt);
+			shadowRay.m_dir.Normalize();
+
+			if (_IsInShadow(pScene, shadowRay)) ret = SColor::BLACK;
+			else ret = _Shade(intersection);
+		}
+
+		return ret;
 	}
 }

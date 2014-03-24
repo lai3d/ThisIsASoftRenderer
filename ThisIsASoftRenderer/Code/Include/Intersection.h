@@ -11,6 +11,7 @@
 #include "Prerequiestity.h"
 #include "MathDef.h"
 #include "Color.h"
+#include "AABB.h"
 
 namespace SR
 {
@@ -18,14 +19,16 @@ namespace SR
 	class RayTraceRenderable
 	{
 	public:
-		RayTraceRenderable():m_bCastShadow(false),m_color(SColor::WHITE) {}
-		virtual ~RayTraceRenderable() {}
+		RayTraceRenderable();
+		virtual ~RayTraceRenderable();
 
 		virtual bool	DoRayIntersect(VEC3& oIntersectPt, const RAY& ray) const = 0;
 		virtual VEC3	GetNormal(const VEC3& surfacePt) const = 0;
+		virtual void	UpdateWorldAABB() {}
 
-		bool	m_bCastShadow;
-		SColor	m_color;
+		bool			m_bCastShadow;
+		SColor			m_color;
+		RayTrace_Box*	m_aabb_raytrace;
 	};
 	typedef std::vector<RayTraceRenderable*>	RayTraceRenderList;
 
@@ -36,6 +39,7 @@ namespace SR
 		VEC3	minPt, maxPt;	// TODO: For now just considered AABB, not OBB
 
 		RayTrace_Box(const VEC3& _minPt, const VEC3& _maxPt);
+		RayTrace_Box();
 
 		virtual bool	DoRayIntersect(VEC3& oIntersectPt, const RAY& ray) const;
 		virtual VEC3	GetNormal(const VEC3& surfacePt) const;

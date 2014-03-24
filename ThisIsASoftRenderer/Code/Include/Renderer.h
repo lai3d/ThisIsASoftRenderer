@@ -42,18 +42,25 @@ namespace SR
 		SFragment*		m_fragmentBuffer;	//这可是个内存大户
 
 	public:
-		void	Init();
-		void	OnFrameMove();
+		void		Init(int wndWidth, int wndHeight);
+		void		OnFrameMove();
+		void		OnWindowResize(int w, int h);
+
 		RayTracer*	GetRayTracer() { return m_rayTracer; }
 		Rasterizer* GetRasterizer(eRasterizeType type);
 		Rasterizer*	GetCurRas() { return m_curRas; }
 		PixelBox*	GetFrameBuffer() { return m_frameBuffer; }
-		void	SetEnableZTest(bool bEnable) { m_bZTestEnable = bEnable; }
-		void	SetEnableZWrite(bool bEnable) { m_bZWriteEnable = bEnable; }
-		bool	GetEnableZTest() const { return m_bZTestEnable; }
-		bool	GetEnableZWrite() const { return m_bZWriteEnable; }
+		void		SetEnableZTest(bool bEnable) { m_bZTestEnable = bEnable; }
+		void		SetEnableZWrite(bool bEnable) { m_bZWriteEnable = bEnable; }
+		bool		GetEnableZTest() const { return m_bZTestEnable; }
+		bool		GetEnableZWrite() const { return m_bZWriteEnable; }
 		PixelBox*	GetCurZBuffer()	{ return m_zBuffer[m_iCurOutputZBuffer].get(); }
 		PixelBox*	GetAnotherZBuffer() { return m_zBuffer[(m_iCurOutputZBuffer+1)%2].get(); }
+		int			GetWndWidth() const { return m_wndWidth; }
+		int			GetWndHeight() const { return m_wndHeight; }
+		const RECT&	GetScissorRect() const { return m_scissorRect; }
+		Scene*		GetCurScene() { return m_scenes[m_curScene]; }
+
 		//切换测试场景
 		void	ToggleScene();
 		//渲染管线
@@ -80,6 +87,9 @@ namespace SR
 		void	_ClearBufferImpl(PixelBox* pBuffer, DWORD val);
 
 	private:
+		int				m_wndWidth, m_wndHeight;
+		RECT			m_scissorRect;
+
 		RayTracer*		m_rayTracer;
 
 		std::unique_ptr<Gdiplus::Bitmap>	m_bmBackBuffer;

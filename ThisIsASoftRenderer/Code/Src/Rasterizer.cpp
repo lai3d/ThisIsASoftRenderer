@@ -56,6 +56,8 @@ namespace SR
 
 	void Rasterizer::RasTriangleSetup(SScanLinesData& rasData, const SVertex* v0, const SVertex* v1, const SVertex* v2, eTriangleShape type)
 	{
+		const RECT& rcClip = g_env.renderer->GetScissorRect();
+
 		const VEC3 p0(v0->pos.x, v0->pos.z, v0->pos.w);
 		const VEC3 p1(v1->pos.x, v1->pos.z, v1->pos.w);
 		const VEC3 p2(v2->pos.x, v2->pos.z, v2->pos.w);
@@ -92,10 +94,10 @@ namespace SR
 		Common::Multiply_Vec3_By_K(rasData.dp_R, rasData.dp_R, rasData.inv_dy_R);
 
 		//≤√ºÙ«¯”Ú≤√ºÙy
-		if(rasData.curY < min_clip_y)
+		if(rasData.curY < rcClip.top)
 		{
-			rasData.clip_dy = min_clip_y - rasData.curY;
-			rasData.curY = min_clip_y;
+			rasData.clip_dy = rcClip.top - rasData.curY;
+			rasData.curY = rcClip.top;
 			Common::Add_Vec3_By_Vec3(rasData.curP_L, rasData.curP_L, Common::Multiply_Vec3_By_K(rasData.dp_L, rasData.clip_dy));
 			Common::Add_Vec3_By_Vec3(rasData.curP_R, rasData.curP_R, Common::Multiply_Vec3_By_K(rasData.dp_R, rasData.clip_dy));
 			rasData.bClipY = true;
@@ -104,25 +106,27 @@ namespace SR
 		{
 			rasData.bClipY = false;
 		}
-		if(rasData.endY > max_clip_y)
+		if(rasData.endY > rcClip.bottom)
 		{
-			rasData.endY = max_clip_y;
+			rasData.endY = rcClip.bottom;
 		}
 	}
 
 	void Rasterizer::RasLineSetup( SScanLine& scanLine, const SScanLinesData& rasData )
 	{
+		const RECT& rcClip = g_env.renderer->GetScissorRect();
+
 		scanLine.inv_dx = 1.0f / (scanLine.lineX1 - scanLine.lineX0);
 		scanLine.dzdw.Set(rasData.curP_R.y-rasData.curP_L.y, rasData.curP_R.z-rasData.curP_L.z);
 		scanLine.zw.Set(rasData.curP_L.y, rasData.curP_L.z);
 		Common::Multiply_Vec2_By_K(scanLine.dzdw, scanLine.dzdw, scanLine.inv_dx);
 
 		//≤√ºÙ«¯”Ú≤√ºÙx
-		if(scanLine.lineX0 < min_clip_x)
+		if(scanLine.lineX0 < rcClip.left)
 		{
 			scanLine.bClipX = true;
-			scanLine.clip_dx = min_clip_x-scanLine.lineX0;
-			scanLine.lineX0 = min_clip_x;			
+			scanLine.clip_dx = rcClip.left-scanLine.lineX0;
+			scanLine.lineX0 = rcClip.left;			
 			Common::Add_Vec2_By_Vec2(scanLine.zw, scanLine.zw, Common::Multiply_Vec2_By_K(scanLine.dzdw, scanLine.clip_dx));
 		}
 		else

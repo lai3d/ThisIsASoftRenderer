@@ -18,6 +18,8 @@ namespace SR
 	,m_frameBuffer(nullptr)
 	,m_iCurOutputZBuffer(0)
 	,m_rayTracer(nullptr)
+	,m_wndWidth(0)
+	,m_wndHeight(0)
 	{
 		
 	}
@@ -39,10 +41,9 @@ namespace SR
 		m_matLib.clear();
 	}
 
-	void Renderer::Init()
+	void Renderer::Init(int wndWidth, int wndHeight)
 	{
-		m_rayTracer = new RayTracer;
-		m_rayTracer->RunIntersectUnitTest();
+		OnWindowResize(wndWidth, wndHeight);
 
 		//初始化所有光栅器
 		m_rasLib.insert(std::make_pair(eRasterizeType_Wireframe, new RasWireFrame));
@@ -53,30 +54,11 @@ namespace SR
 		m_rasLib.insert(std::make_pair(eRasterizeType_NormalMap, new RasNormalMap));
 		m_rasLib.insert(std::make_pair(eRasterizeType_LightMap, new RasLightMap));
 
-		//创建后备缓冲
-		m_backBuffer.reset(new SR::PixelBox(SCREEN_WIDTH, SCREEN_HEIGHT, PIXEL_MODE));
-
-		SetRenderTarget(m_backBuffer.get());
-
-		for(int i=0; i<OIT_LAYER; ++i)
-			m_backBuffer_OIT[i].reset(new SR::PixelBox(SCREEN_WIDTH, SCREEN_HEIGHT, PIXEL_MODE));
-
-		int bmWidth = m_backBuffer->GetWidth();
-		int bmHeight = m_backBuffer->GetHeight();
-		int bmPitch = m_backBuffer->GetPitch();
-		BYTE* data = (BYTE*)m_backBuffer->GetDataPointer();
-
-		m_bmBackBuffer.reset(new Gdiplus::Bitmap(bmWidth, bmHeight, bmPitch, PixelFormat32bppARGB, data));
-
-		//创建z-buffer
-		m_zBuffer[0].reset(new SR::PixelBox(SCREEN_WIDTH, SCREEN_HEIGHT, PIXEL_MODE));
-		m_zBuffer[1].reset(new SR::PixelBox(SCREEN_WIDTH, SCREEN_HEIGHT, PIXEL_MODE));
-
 		m_zFunc[0] = eZFunc_Less;
 		m_zFunc[1] = eZFunc_Less;
 
-		//创建fragment buffer
-		m_fragmentBuffer = new SFragment[SCREEN_WIDTH * SCREEN_HEIGHT];
+		m_rayTracer = new RayTracer;
+		m_rayTracer->RunIntersectUnitTest();
 
 		//测试方向光
 		m_testLight.dir = VEC3(-0.3f,-1,-1);
@@ -88,8 +70,6 @@ namespace SR
 		m_ambientColor.Set(0.4f, 0.4f, 0.4f);
 
 		_InitAllScene();
-
-		ToggleScene();
 	}
 
 	Rasterizer* Renderer::GetRasterizer( eRasterizeType type )
@@ -272,7 +252,7 @@ namespace SR
 #endif
 
 		//clear fragment buffer
-		DWORD nBuffer = SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(SFragment) / sizeof(int);
+		DWORD nBuffer = m_wndWidth * m_wndHeight * sizeof(SFragment) / sizeof(int);
 		void* dst = &m_fragmentBuffer[0];
 
 		_asm
@@ -404,5 +384,40 @@ namespace SR
 	{
 		assert(i == 0 || i == 1);
 		m_zFunc[i] = func;
+	}
+
+	void Renderer::OnWindowResize( int w, int h )
+	{
+		m_wndWidth = w;
+		m_wndHeight = h;
+		m_scissorRect.left = 0;
+		m_scissorRect.top = 0;
+		m_scissorRect.right = w - 1;
+		m_scissorRect.bottom = h - 1;
+
+		m_camera.SetAspectRatio(m_wndWidth / (float)m_wndHeight);
+
+		//创建后备缓冲
+		m_backBuffer.reset(new SR::PixelBox(m_wndWidth, m_wndHeight, PIXEL_MODE));
+
+		SetRenderTarget(m_backBuffer.get());
+
+		for(int i=0; i<OIT_LAYER; ++i)
+			m_backBuffer_OIT[i].reset(new SR::PixelBox(m_wndWidth, m_wndHeight, PIXEL_MODE));
+
+		int bmWidth = m_backBuffer->GetWidth();
+		int bmHeight = m_backBuffer->GetHeight();
+		int bmPitch = m_backBuffer->GetPitch();
+		BYTE* data = (BYTE*)m_backBuffer->GetDataPointer();
+
+		m_bmBackBuffer.reset(new Gdiplus::Bitmap(bmWidth, bmHeight, bmPitch, PixelFormat32bppARGB, data));
+
+		//创建z-buffer
+		m_zBuffer[0].reset(new SR::PixelBox(m_wndWidth, m_wndHeight, PIXEL_MODE));
+		m_zBuffer[1].reset(new SR::PixelBox(m_wndWidth, m_wndHeight, PIXEL_MODE));
+
+		//创建fragment buffer
+		SAFE_DELETE(m_fragmentBuffer);
+		m_fragmentBuffer = new SFragment[m_wndWidth * m_wndHeight];
 	}
 }

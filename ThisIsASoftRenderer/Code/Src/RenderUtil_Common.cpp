@@ -319,8 +319,8 @@ namespace SR
 
 			/////////////////////////////////////////////////
 			///////// ÊÓ¿ÚÓ³Éä [-1,1] -> [0, Viewport W/H]
-			float a = 0.5f * SCREEN_WIDTH;
-			float b = 0.5f *SCREEN_HEIGHT;
+			float a = 0.5f * g_env.renderer->GetWndWidth();
+			float b = 0.5f * g_env.renderer->GetWndHeight();
 
 			vertPos.x = a + a * vertPos.x;
 			vertPos.y = b - b * vertPos.y;
@@ -330,7 +330,7 @@ namespace SR
 	void RenderUtil::DrawText( float x, float y, const STRING& text, const Gdiplus::Color& color )
 	{
 		static bool bInit = false;
-		static Gdiplus::Graphics g(g_env.renderer->m_bmBackBuffer.get());
+		Gdiplus::Graphics g(g_env.renderer->m_bmBackBuffer.get());
 		static Gdiplus::Font font(L"Arial", 8);
 		static Gdiplus::StringFormat format;
 

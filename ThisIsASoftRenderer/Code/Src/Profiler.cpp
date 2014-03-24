@@ -59,7 +59,7 @@ namespace Ext
 				const SThreadStat& stat = iter->second;
 				sprintf_s(szText, ARRAYSIZE(szText), "Thread%d : %d Tris,   %d Fragment", i, stat.nRenderedTri, stat.nRenderedPixel);
 				
-				SR::RenderUtil::DrawText(0, SCREEN_HEIGHT-25.0f*(i+1), szText, 0xffff0000);
+				SR::RenderUtil::DrawText(0, g_env.renderer->GetWndHeight()-25.0f*(i+1), szText, 0xffff0000);
 			}
 		}
 #endif

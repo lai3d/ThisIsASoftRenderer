@@ -9,15 +9,10 @@
 #ifndef Prerequiestity_h__
 #define Prerequiestity_h__
 
-const int		SCREEN_WIDTH	=	640;
-const int		SCREEN_HEIGHT	=	480;
+
 const int		PIXEL_MODE		=	4;		//像素模式(字节数). NB:只支持32位模式,不要更改
 const int		OIT_LAYER		=	4;		//Depth-peeling的层数
-// clipping rectangle 
-const int		min_clip_x		=	0;                          
-const int		max_clip_x		=	(SCREEN_WIDTH-1);
-const int		min_clip_y		=	0;
-const int		max_clip_y		=	(SCREEN_HEIGHT-1);
+
 
 #define USE_32BIT_INDEX			0			//是否使用32位顶点索引
 #define USE_PERSPEC_CORRECT		1			//是否使用透视修正
@@ -36,6 +31,7 @@ enum eZFunc
 
 
 typedef std::string STRING;
+typedef std::vector<STRING> StringVector;
 
 namespace Common
 {
@@ -102,7 +98,7 @@ struct SGlobalEnv
 	Ext::OgreMeshLoader*	meshLoader;				// .mesh加载器
 	Ext::ObjMeshLoader*		objLoader;				// .obj加载器
 	Ext::Profiler*			profiler;				// 性能诊断器
-	SR::CFThreadPool<void*>* jobMgr;	// 线程池	
+	SR::CFThreadPool<void*>* jobMgr;				// 线程池	
 };
 extern SGlobalEnv	g_env;
 

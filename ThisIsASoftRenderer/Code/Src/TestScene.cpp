@@ -392,19 +392,33 @@ void EnterTestScene8(SR::Scene* scene)
 
 void SetupTestScene9(SR::Scene* scene)
 {
-	// Shadow caster
-	SR::RayTrace_Box* box1 = new SR::RayTrace_Box(VEC3(-40,5,-20), VEC3(40,30,20));
-	// Shadow receiver
-	SR::RayTrace_Box* box2 = new SR::RayTrace_Box(VEC3(-200,-1,-200), VEC3(200,1,200));
+// 	// Shadow caster
+// 	SR::RayTrace_Box* box1 = new SR::RayTrace_Box(VEC3(-40,5,-20), VEC3(40,30,20));
+// 	// Shadow receiver
+// 	SR::RayTrace_Box* box2 = new SR::RayTrace_Box(VEC3(-200,-1,-200), VEC3(200,1,200));
+// 
+// 	box1->m_bCastShadow = true;
+// 	box2->m_bCastShadow = false;
+// 
+// 	box1->m_color = SR::SColor::RED;
+// 	box2->m_color = SR::SColor::YELLOW;
+// 
+// 	scene->AddRayTraceObject(box1);
+// 	scene->AddRayTraceObject(box2);
+// 	scene->EnableRayTracing(true);
+// 
+// 	SR::SPointLight* pLight = g_env.renderer->GetRayTracer()->m_pLight;
+// 	pLight->pos = VEC3(-90, 121, -65);
+// 	pLight->color = SR::SColor::WHITE;
 
-	box1->m_bCastShadow = true;
-	box2->m_bCastShadow = false;
+	bool bOk = g_env.meshLoader->LoadMeshFile(GetResPath("RayTrace\\Box01.mesh.xml"), true, false);
+	assert(bOk);
 
-	box1->m_color = SR::SColor::RED;
-	box2->m_color = SR::SColor::YELLOW;
+	SR::RayTraceRenderable* box = g_env.meshLoader->m_objs[0];
+	box->m_bCastShadow = false;
+	box->m_color = SR::SColor::YELLOW;
 
-	scene->AddRayTraceObject(box1);
-	scene->AddRayTraceObject(box2);
+	scene->AddRayTraceObject(box);
 	scene->EnableRayTracing(true);
 
 	SR::SPointLight* pLight = g_env.renderer->GetRayTracer()->m_pLight;
@@ -414,9 +428,13 @@ void SetupTestScene9(SR::Scene* scene)
 
 void EnterTestScene9(SR::Scene* scene)
 {
-	g_env.renderer->m_camera.SetPosition(VEC3(-93,165,28));
-	g_env.renderer->m_camera.SetMoveSpeed(3.0f);
-	g_env.renderer->m_camera.SetDirection(VEC3(93,-165,-28));
+// 	g_env.renderer->m_camera.SetPosition(VEC3(-93,165,28));
+// 	g_env.renderer->m_camera.SetMoveSpeed(3.0f);
+// 	g_env.renderer->m_camera.SetDirection(VEC3(93,-165,-28));
+// 	g_env.renderer->m_camera.SetNearClip(1.0f);
+	g_env.renderer->m_camera.SetPosition(VEC3(12.865f, -31.042f, -2.012f));
+	g_env.renderer->m_camera.SetMoveSpeed(5.0f);
+	g_env.renderer->m_camera.SetDirection(VEC3(0,0,1));
 	g_env.renderer->m_camera.SetNearClip(1.0f);
 }
 
@@ -521,9 +539,9 @@ namespace SR
 // 
 // 		//// Test Scene 8: sponza.obj
 // 		ADD_TEST_SCENE(SetupTestScene8, EnterTestScene8);
-// 
-// 		//// Test Scene 9: Ray tracing
-// 		ADD_TEST_SCENE(SetupTestScene9, EnterTestScene9);
+
+		//// Test Scene 9: Ray tracing
+		ADD_TEST_SCENE(SetupTestScene9, EnterTestScene9);
 
 		//// Test Scene 10: Lighting mapping
 		ADD_TEST_SCENE(SetupTestScene10, EnterTestScene10);

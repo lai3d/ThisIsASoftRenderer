@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "RenderObject.h"
 #include "Renderer.h"
+#include "RenderUtil.h"
 
 namespace SR
 {
@@ -193,4 +194,53 @@ namespace SR
 		assert(m_pShader);
 	}
 
+	bool RenderObject::DoRayIntersect( VEC3& oIntersectPt, const RAY& ray ) const
+	{
+		// First Do ray-aabb intersection test
+		auto hitResult = ray.Intersect_Box(*m_aabb_raytrace);
+
+		if(!hitResult.first)
+			return false;
+
+		// Then traverse all faces to find the intersect and nearest one
+		float fDist = FLT_MAX;
+		bool bHit = false;
+		for (size_t iFace=0; iFace<m_faces.size(); ++iFace)
+		{
+			const VEC3& p1 = m_verts[m_faces[iFace].index1].pos.GetVec3();
+			const VEC3& p2 = m_verts[m_faces[iFace].index2].pos.GetVec3();
+			const VEC3& p3 = m_verts[m_faces[iFace].index3].pos.GetVec3();
+
+			hitResult = ray.Intersect_Triangle(p1, p2, p3);
+			if (hitResult.first && hitResult.second < fDist)
+			{
+				fDist = hitResult.second;
+				bHit = true;
+			}
+		}
+
+		// If hit, get the hit point
+		if (bHit)
+		{
+			oIntersectPt = ray.GetPoint(fDist);
+			return true;
+		}
+
+		return false;
+	}
+
+	VEC3 RenderObject::GetNormal( const VEC3& surfacePt ) const
+	{
+		return VEC3::UNIT_Y;
+	}
+
+	void RenderObject::UpdateWorldAABB()
+	{
+		RenderUtil::ComputeAABB(*this);
+
+		m_worldAABB = m_localAABB;
+		m_worldAABB.Transform(m_matWorld);
+
+		m_aabb_raytrace = new RayTrace_Box(m_worldAABB.m_minCorner, m_worldAABB.m_maxCorner);
+	}
 }

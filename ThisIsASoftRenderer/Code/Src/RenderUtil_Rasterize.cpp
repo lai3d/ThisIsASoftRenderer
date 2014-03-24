@@ -83,96 +83,98 @@ namespace SR
 
 	bool RenderUtil::ClipLine( int& x1, int& y1, int& x2, int& y2 )
 	{
+		const RECT& rcClip = g_env.renderer->GetScissorRect();
+
 		// Left edge
-		if (x1 < min_clip_x && x2 < min_clip_x)
+		if (x1 < rcClip.left && x2 < rcClip.left)
 		{
 			return false;
 		} 
-		else if(x1 >= min_clip_x && x2 >= min_clip_x)
+		else if(x1 >= rcClip.left && x2 >= rcClip.left)
 		{
 		}
 		else		// Need clip
 		{
-			float t = (min_clip_x-x1)/(float)(x2-x1);
+			float t = (rcClip.left-x1)/(float)(x2-x1);
 			float intersectY = y1 + (y2-y1)*t;
 			if (x1 < x2)	//交点取代pt1
 			{
-				x1 = min_clip_x;
+				x1 = rcClip.left;
 				y1 = Ext::Ftoi32_Fast(intersectY);
 			} 
 			else			//交点取代pt2
 			{
-				x2 = min_clip_x;
+				x2 = rcClip.left;
 				y2 = Ext::Ftoi32_Fast(intersectY);
 			}
 		}
 		// Bottom edge
-		if (y1 >= max_clip_y && y2 >= max_clip_y)
+		if (y1 >= rcClip.bottom && y2 >= rcClip.bottom)
 		{
 			return false;
 		} 
-		else if(y1 < max_clip_y && y2 < max_clip_y)
+		else if(y1 < rcClip.bottom && y2 < rcClip.bottom)
 		{
 		}
 		else		// Need clip
 		{
-			float t = (max_clip_y-y1)/(float)(y2-y1);
+			float t = (rcClip.bottom-y1)/(float)(y2-y1);
 			float intersectX = x1 + (x2-x1)*t;
 			if (y1 < y2)	//交点取代pt2
 			{
 				x2 = Ext::Ftoi32_Fast(intersectX);
-				y2 = max_clip_y;
+				y2 = rcClip.bottom;
 			} 
 			else			//交点取代pt1
 			{
 				x1 = Ext::Ftoi32_Fast(intersectX);
-				y1 = max_clip_y;
+				y1 = rcClip.bottom;
 			}
 		}
 		// Right edge
-		if (x1 >= max_clip_x && x2 >= max_clip_x)
+		if (x1 >= rcClip.right && x2 >= rcClip.right)
 		{
 			return false;
 		} 
-		else if(x1 < max_clip_x && x2 < max_clip_x)
+		else if(x1 < rcClip.right && x2 < rcClip.right)
 		{
 		}
 		else		// Need clip
 		{
-			float t = (max_clip_x-x1)/(float)(x2-x1);
+			float t = (rcClip.right-x1)/(float)(x2-x1);
 			float intersectY = y1 + (y2-y1)*t;
 			if (x1 < x2)	//交点取代pt2
 			{
-				x2 = max_clip_x;
+				x2 = rcClip.right;
 				y2 = Ext::Ftoi32_Fast(intersectY);
 			} 
 			else			//交点取代pt1
 			{
-				x1 = max_clip_x;
+				x1 = rcClip.right;
 				y1 = Ext::Ftoi32_Fast(intersectY);
 			}
 		}
 		// Top edge
-		if (y1 < min_clip_y && y2 < min_clip_y)
+		if (y1 < rcClip.top && y2 < rcClip.top)
 		{
 			return false;
 		} 
-		else if(y1 >= min_clip_y && y2 >= min_clip_y)
+		else if(y1 >= rcClip.top && y2 >= rcClip.top)
 		{
 		}
 		else		// Need clip
 		{
-			float t = (min_clip_y-y1)/(float)(y2-y1);
+			float t = (rcClip.top-y1)/(float)(y2-y1);
 			float intersectX = x1 + (x2-x1)*t;
 			if (y1 < y2)	//交点取代pt1
 			{
 				x1 = Ext::Ftoi32_Fast(intersectX);
-				y1 = min_clip_y;
+				y1 = rcClip.top;
 			} 
 			else			//交点取代pt2
 			{
 				x2 = Ext::Ftoi32_Fast(intersectX);
-				y2 = min_clip_y;
+				y2 = rcClip.top;
 			}
 		}
 		return true;
@@ -180,6 +182,8 @@ namespace SR
 
 	bool RenderUtil::PreDrawTriangle( const SVertex*& vert0, const SVertex*& vert1, const SVertex*& vert2, eTriangleShape& retType )
 	{
+		const RECT& rcClip = g_env.renderer->GetScissorRect();
+
 		int x0 = Ext::Ceil32_Fast(vert0->pos.x);
 		int x1 = Ext::Ceil32_Fast(vert1->pos.x);
 		int x2 = Ext::Ceil32_Fast(vert2->pos.x);
@@ -188,10 +192,10 @@ namespace SR
 		int y2 = Ext::Ceil32_Fast(vert2->pos.y);
 
 		//该三角面不在裁剪区域内,不绘制
-		if(	(x0 < min_clip_x && x1 < min_clip_x && x2 < min_clip_x) ||
-			(x0 > max_clip_x && x1 > max_clip_x && x2 > max_clip_x) ||
-			(y0 < min_clip_y && y1 < min_clip_y && y2 < min_clip_y) ||
-			(y0 > max_clip_y && y1 > max_clip_y && y2 > max_clip_y) )
+		if(	(x0 < rcClip.left && x1 < rcClip.left && x2 < rcClip.left) ||
+			(x0 > rcClip.right && x1 > rcClip.right && x2 > rcClip.right) ||
+			(y0 < rcClip.top && y1 < rcClip.top && y2 < rcClip.top) ||
+			(y0 > rcClip.bottom && y1 > rcClip.bottom && y2 > rcClip.bottom) )
 			return false;
 
 		//该三角面退化成了直线,不绘制
@@ -483,10 +487,13 @@ namespace SR
 		Renderer* pRenderer = g_env.renderer;
 		int lpitch = pRenderer->m_frameBuffer->GetWidth();
 
+		const RECT& rcClip = pRenderer->GetScissorRect();
+		const int wndWidth = pRenderer->GetWndWidth();
+
 		DWORD* destBuffer = (DWORD*)pRenderer->m_frameBuffer->GetDataPointer() + scanLineData.curY * lpitch;
-		float* zBuffer_write = (float*)pRenderer->GetCurZBuffer()->GetDataPointer() + scanLineData.curY * SCREEN_WIDTH;
-		float* zBuffer_read = (float*)pRenderer->GetAnotherZBuffer()->GetDataPointer() + scanLineData.curY * SCREEN_WIDTH;
-		SFragment* fragBuf = pRenderer->m_fragmentBuffer + scanLineData.curY * SCREEN_WIDTH;
+		float* zBuffer_write = (float*)pRenderer->GetCurZBuffer()->GetDataPointer() + scanLineData.curY * wndWidth;
+		float* zBuffer_read = (float*)pRenderer->GetAnotherZBuffer()->GetDataPointer() + scanLineData.curY * wndWidth;
+		SFragment* fragBuf = pRenderer->m_fragmentBuffer + scanLineData.curY * wndWidth;
 
 		Rasterizer* curRaster = pRenderer->GetCurRas();
 		SScanLine scanLine;
@@ -501,9 +508,9 @@ namespace SR
 			{
 				curRaster->RasLineSetup(scanLine, scanLineData);
 
-				if(scanLine.lineX1 > max_clip_x)
+				if(scanLine.lineX1 > rcClip.right)
 				{
-					scanLine.lineX1 = max_clip_x;
+					scanLine.lineX1 = rcClip.right;
 				}
 
 				// Rasterize a line
@@ -550,9 +557,9 @@ namespace SR
 			Common::Add_Vec3_By_Vec3(scanLineData.curP_R, scanLineData.curP_R, scanLineData.dp_R);
 
 			destBuffer += lpitch;
-			zBuffer_write += SCREEN_WIDTH;
-			zBuffer_read += SCREEN_WIDTH;
-			fragBuf += SCREEN_WIDTH;
+			zBuffer_write += wndWidth;
+			zBuffer_read += wndWidth;
+			fragBuf += wndWidth;
 		}
 #if USE_PROFILER == 1
 		g_env.profiler->AddRenderedFace();

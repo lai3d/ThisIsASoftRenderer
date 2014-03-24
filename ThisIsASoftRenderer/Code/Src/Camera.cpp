@@ -14,9 +14,9 @@ namespace SR
 	,m_bActive(false)
 	,m_imagePlane_r(-1)
 	,m_imagePlane_t(-1)
+	,m_aspectRatio(1.0f)
 	{
 		m_fov = Common::Angle_To_Radian(45);
-		m_aspectRatio = SCREEN_WIDTH / (float)SCREEN_HEIGHT;
 	}
 
 	void Camera::Update()
@@ -222,6 +222,12 @@ namespace SR
 	void Camera::SetFarClip( float f )
 	{
 		m_farClip = f;
+		_BuildProjMatrix();
+	}
+
+	void Camera::SetAspectRatio( float fAspectRatio )
+	{
+		m_aspectRatio = fAspectRatio;
 		_BuildProjMatrix();
 	}
 }

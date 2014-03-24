@@ -117,9 +117,6 @@
     <ClCompile Include="Code\Src\stdafx.cpp">
       <Filter>Src</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Src\ThisIsASoftRenderer.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Src\PixelBox.cpp">
       <Filter>Src</Filter>
     </ClCompile>
